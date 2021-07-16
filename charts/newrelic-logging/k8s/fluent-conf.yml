@@ -32,6 +32,17 @@ data:
         Mem_Buf_Limit     7MB
         Skip_Long_Lines   On
         Refresh_Interval  10
+    
+    [INPUT]
+        Name              tail
+        Path              ${PATH}
+        Read_from_head    true
+        Multiline         on
+        Parser_Firstline  php_multiline
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     7MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
 
   filter-kubernetes.conf: |
     [FILTER]
@@ -67,3 +78,10 @@ data:
         Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<message>.*)$
         Time_Key    time
         Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+
+    [PARSER]
+        Name php_multiline
+        Format regex
+        Regex ^\[(?<start_time>(\d{4}[-]\d{2}[-]\d{2})\s(\d{2}[:]\d{2}[:]\d{2}))\]\s(?<environment>(\w{3,4}.ERROR))(?<message>.*)
+        Time_Key  time
+        Time_Format %Y-%m-%d %H:%M:%S
